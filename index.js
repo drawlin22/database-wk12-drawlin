@@ -52,16 +52,15 @@ inquirer
       },
       {
         type: 'input',
-        message: 'What is the name of the department?',
+        message: 'What is the name of the department to add?',
         name: 'addDepartment',
         when: (answers) => answers['toDo'] === 'Add Department'
         
       },
       {
-        type: 'list',
-        message: 'What is the name of the role?',
+        type: 'input',
+        message: 'What is the name of the role to add?',
         name: 'role',
-        choices: ['Software Engineer', 'Account Manager', 'Accountant','Legal Team Lead', 'Lawyer'],
         when: (answers) => answers['toDo'] === 'Add Role'
       },
       {
@@ -71,10 +70,9 @@ inquirer
         when: (answers) => answers['toDo'] === 'Add Role'
       },
       {
-        type: 'list',
-        message: 'What department does the role belong to?',
+        type: 'input',
+        message: 'What department number does the role belong to? 1= Sales, 2= Engineering, 3=Finance, 4=Legal',
         name: 'belongTo',
-        choices: ['Engineering', 'Finance', 'Legal', 'Sales'],
         when: (answers) => answers['toDo'] === 'Add Role'
       },
       {
@@ -147,48 +145,34 @@ if (allDepartments === 'View All Departments') {
     console.table(response);
   });
 }
+if (response.addDepartment) {
+  const userAddDepartments = `INSERT INTO Departments(name) Values ('${addDepartment}')`
+  connection.query(userAddDepartments, (error,response) => {
+    if (error) throw error;
+    console.table(response);
   });
+}
+if (response.role && response.salary && response.belongTo) {
+    const userAddRole = `INSERT INTO Roles(title, salary, department_id) Values ('${role}','${salary}','${belongTo}')`
+    connection.query(userAddRole, (error,response) => {
+      if (error) throw error;
+      console.table(response);
+    });
+  }
+  if (response.firstName && response.lastName && response.currentRole && response.currentManager) {
+    const userUpdate = `update Employees(first_name, last_name, role_id, manager_id) Values ('${firstName}','${lastName}','${currentRole}','${currentManager}')`
+    connection.query(userUpdate, (error,response) => {
+      if (error) throw error;
+      console.table(response);
+    });
+  }
+});
 
-
-
-
-    // const query = `INSERT INTO Employees (first_name, last_name, currentRole, currentManager) VALUES ('${firstName}', '${lastName}','${currentRole},'${currentManager})`;
-    //  connection.query(query),(error, result) => {
-    //   if(error) {
-    //     console.error(error)
-    //   } else {
-    //     console.log('Data inserted successfully')
-    //   }
-    // }
-  
-  
-
-  /*
-  const addDepartment = response.addDepartment;
-const role = response.role;
-const salary = response.salary;
-const belongTo = response.belongTo;
-const firstName = response.firstName;
-const lastName = response.lastName;
-const currentRole = response.currentRole;
-const currentManager = response.currentManager;
-*/
-
+   
 /*
 
-GIVEN a command-line application that accepts user input
-WHEN I start the application
-THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
-WHEN I choose to view all departments
-THEN I am presented with a formatted table showing department names and department ids
-WHEN I choose to view all roles
-THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
-WHEN I choose to view all employees
-THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
-WHEN I choose to add a department
-THEN I am prompted to enter the name of the department and that department is added to the database
-WHEN I choose to add a role
-THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
+
+
 WHEN I choose to add an employee
 THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 WHEN I choose to update an employee role
