@@ -97,9 +97,9 @@ inquirer
       },
       {
         type: 'list',
-        message: 'What do you want their new role to be?',
+        message: 'What do you want their new role to be? 1=Sales Lead, 2=Salesperson, 3=Lead Engineer, 4= Software Engineer, 5= Account Manager, 6= Accountant, 7=Legal Team Lead, 8=Lawyer',
         name: 'newRole',
-        choices: ["arrayEmployees"],
+        choices: ['1', '2', '3','4', '5','6','7','8'],
         when: (answers) => answers['update'],
       },
 
