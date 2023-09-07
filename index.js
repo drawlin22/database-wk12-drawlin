@@ -95,6 +95,14 @@ inquirer
         choices: ["arrayEmployees"],
         when: (answers) => answers['toDo'] === 'Update Employee Role'
       },
+      {
+        type: 'list',
+        message: 'What do you want their new role to be?',
+        name: 'newRole',
+        choices: ["arrayEmployees"],
+        when: (answers) => answers['update'],
+      },
+
       ])
   
     
@@ -160,8 +168,8 @@ else if (response.role && response.salary && response.belongTo) { /* if all role
       questions();
     });
   }
-  else if (response.currentRole && response.update) {
-    const userUpdate = `update Employees(role_id) Values ('${currentRole}')`
+  else if (response.newRole && response.update) { /* updates employee role from selected employee */
+    const userUpdate = `update Employees(role_id) Values ('${newRole}')`
     connection.query(userUpdate, (error,response) => {
       if (error) throw error;
       console.table(response);
