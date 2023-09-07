@@ -160,7 +160,7 @@ else if (response.role && response.salary && response.belongTo) { /* if all role
       questions();
     });
   }
-  else if (response.firstName && response.lastName && response.currentRole && response.currentManager && response.update) {
+  else if (response.currentRole && response.update) {
     const userUpdate = `update Employees(role_id) Values ('${currentRole}')`
     connection.query(userUpdate, (error,response) => {
       if (error) throw error;
