@@ -1,6 +1,28 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-let arrayEmployees = [];
+let arrayEmployees=[];
+let arrayRoles = [];
+let arrayManagers = [];
+
+const connection = mysql.createConnection({ /* creates mysequel connection */
+  host: 'localhost',
+  user: 'root',
+  password: 'nicholas12',
+  database: 'Employee_Records',
+});
+
+function populatedEmployees() {
+let arrayE = " select * from Employees";
+connection.query(arrayE, (error,response) => {
+  // if (error) throw error;
+  // console.log(response);
+
+  arrayEmployees = response.map((employee) => ({
+  name: `${employee.first_name} ${employee.last_name}`,
+  value: employee.id
+  
+}));
+
 
 console.log(`
 ███████╗███╗   ███╗██████╗ ██╗      ██████╗ ██╗   ██╗███████╗███████╗
@@ -18,14 +40,6 @@ console.log(`
        ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝        
                                                                 
   `) /* adds the ASCII art to the terminal*/
-
-
-const connection = mysql.createConnection({ /* creates mysequel connection */
-  host: 'localhost',
-  user: 'root',
-  password: 'nicholas12',
-  database: 'Employee_Records',
-});
 
 const questions = () => { /* setting all questions to a function to call after each promise is complete */
 inquirer
@@ -92,7 +106,7 @@ inquirer
         type: 'list',
         message: 'Which employees role do you want to update?',
         name: 'update',
-        choices: ["arrayEmployees"],
+        choices: arrayEmployees,
         when: (answers) => answers['toDo'] === 'Update Employee Role'
       },
       {
@@ -169,7 +183,7 @@ else if (response.role && response.salary && response.belongTo) { /* if all role
     });
   }
   else if (response.newRole && response.update) { /* updates employee role from selected employee */
-    const userUpdate = `update Employees(role_id) Values ('${newRole}')`
+    const userUpdate = `update Employees set role_id = ${ response.newRole} where id = ${response.update}`;
     connection.query(userUpdate, (error,response) => {
       if (error) throw error;
       console.table(response);
@@ -182,4 +196,9 @@ else if (response.role && response.salary && response.belongTo) { /* if all role
 }
 
 questions();
+});
+}
+
+populatedEmployees();
+
   
