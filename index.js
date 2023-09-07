@@ -161,7 +161,7 @@ else if (response.role && response.salary && response.belongTo) { /* if all role
     });
   }
   else if (response.firstName && response.lastName && response.currentRole && response.currentManager && response.update) {
-    const userUpdate = `update Employees(first_name, last_name, role_id, manager_id) Values ('${firstName}','${lastName}','${currentRole}','${currentManager}')`
+    const userUpdate = `update Employees(role_id) Values ('${currentRole}')`
     connection.query(userUpdate, (error,response) => {
       if (error) throw error;
       console.table(response);
