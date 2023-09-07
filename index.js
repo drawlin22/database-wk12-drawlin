@@ -1,5 +1,6 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
+let arrayEmployees = [];
 
 console.log(`
 ███████╗███╗   ███╗██████╗ ██╗      ██████╗ ██╗   ██╗███████╗███████╗
@@ -16,7 +17,7 @@ console.log(`
        ██║   ██║  ██║██║  ██║╚██████╗██║  ██╗███████╗██║  ██║        
        ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝        
                                                                 
-  `) /* adds the ASCII */
+  `) /* adds the ASCII art to the terminal*/
 
 
 const connection = mysql.createConnection({ /* creates mysequel connection */
@@ -34,8 +35,7 @@ inquirer
         type: 'list',
         message: 'What would you like to do?',
         name: 'toDo',
-        choices: ['Add Department', 'Add Role', 'Add Employee', 'Update Employee Role', 'View All Employees', 'View All Departments', 'View All Roles'
-    ]
+        choices: [ 'View All Employees', 'View All Departments', 'View All Roles','Add Department', 'Add Role', 'Add Employee', 'Update Employee Role',"quit"]
       },
       {
         type: 'input',
@@ -92,11 +92,12 @@ inquirer
         type: 'list',
         message: 'Which employees role do you want to update?',
         name: 'update',
-        choices: ['dept1'],
+        choices: ["arrayEmployees"],
         when: (answers) => answers['toDo'] === 'Update Employee Role'
       },
       ])
   
+    
   .then((response) => {
     const addDepartment = response.addDepartment;
     const role = response.role;
@@ -110,8 +111,8 @@ inquirer
     const allDepartments = response.toDo;
     const allRoles = response.toDo; 
     
-
-if (allEmployees === 'View All Employees') {
+  
+if (allEmployees === 'View All Employees') { /* displays table of all Employees */
     const viewAllEmployees = "select * from Employees"
     connection.query(viewAllEmployees, (error,response) => {
       if (error) throw error;
@@ -119,7 +120,7 @@ if (allEmployees === 'View All Employees') {
       questions();
     });
   }
-else if (allRoles === 'View All Roles') {
+else if (allRoles === 'View All Roles') { /* displays table of all Roles */
   const viewAllRoles = "select * from Roles"
   connection.query(viewAllRoles, (error,response) => {
     if (error) throw error;
@@ -127,7 +128,7 @@ else if (allRoles === 'View All Roles') {
     questions();
   });
 }
-else if (allDepartments === 'View All Departments') {
+else if (allDepartments === 'View All Departments') { /* displays table of all Departments */
   const viewAllDepartments = "select * from Departments"
   connection.query(viewAllDepartments, (error,response) => {
     if (error) throw error;
@@ -135,7 +136,7 @@ else if (allDepartments === 'View All Departments') {
     questions();
   });
 }
-else if (response.addDepartment) {
+else if (response.addDepartment) { /* If addDepartment is selected then entered values are added to the Departments Table */
   const userAddDepartments = `INSERT INTO Departments(name) Values ('${addDepartment}')`
   connection.query(userAddDepartments, (error,response) => {
     if (error) throw error;
@@ -143,7 +144,7 @@ else if (response.addDepartment) {
     questions();
   });
 }
-else if (response.role && response.salary && response.belongTo) {
+else if (response.role && response.salary && response.belongTo) { /* if all role questions are answered then they are added to the Roles Table */
     const userAddRole = `INSERT INTO Roles(title, salary, department_id) Values ('${role}','${salary}','${belongTo}')`
     connection.query(userAddRole, (error,response) => {
       if (error) throw error;
@@ -151,7 +152,7 @@ else if (response.role && response.salary && response.belongTo) {
       questions();
     });
   }
-  else if (response.firstName && response.lastName && response.currentRole && response.currentManager) {
+  else if (response.firstName && response.lastName && response.currentRole && response.currentManager) { /* if all Employee questions are answered then they are added to the Employees Table */
     const addUser = `INSERT INTO Employees(first_name, last_name, role_id, manager_id) Values ('${firstName}','${lastName}','${currentRole}','${currentManager}')`
     connection.query(addUser, (error,response) => {
       if (error) throw error;
@@ -159,13 +160,15 @@ else if (response.role && response.salary && response.belongTo) {
       questions();
     });
   }
-  else if (response.firstName && response.lastName && response.currentRole && response.currentManager) {
+  else if (response.firstName && response.lastName && response.currentRole && response.currentManager && response.update) {
     const userUpdate = `update Employees(first_name, last_name, role_id, manager_id) Values ('${firstName}','${lastName}','${currentRole}','${currentManager}')`
     connection.query(userUpdate, (error,response) => {
       if (error) throw error;
       console.table(response);
       questions();
     });
+  } else if (response.toDo === "quit") { /* ends the connection if quit is selected */
+    connection.end();
   }
 });
 }
