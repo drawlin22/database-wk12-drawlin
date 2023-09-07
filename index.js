@@ -121,7 +121,7 @@ inquirer
     
   
 if (allEmployees === 'View All Employees') { /* displays table of all Employees */
-    const viewAllEmployees = "select * from Employees"
+    const viewAllEmployees = "select * from Employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id"
     connection.query(viewAllEmployees, (error,response) => {
       if (error) throw error;
       console.table(response);
