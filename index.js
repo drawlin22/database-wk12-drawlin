@@ -3,6 +3,7 @@ const inquirer = require('inquirer');
 let arrayEmployees=[];
 let arrayRoles = [];
 let arrayManagers = [];
+let deptbelongto = [];
 
 const connection = mysql.createConnection({ /* creates mysequel connection */
   host: 'localhost',
@@ -11,17 +12,46 @@ const connection = mysql.createConnection({ /* creates mysequel connection */
   database: 'Employee_Records',
 });
 
+function populatedRoles() {
+  return new Promise((resolve, reject) => {
+  let arrayR = "SELECT * FROM Roles";
+  connection.query(arrayR, (error, response) => {
+    if (error) throw error;
+    arrayRoles = response.map((role) => ({
+      name: `${role.title}`,
+      value: role.id
+    }));
+    resolve();
+  });
+})
+.then (() => populateDepartments());
+}
+
+function populateDepartments() {
+  return new Promise((resolve, reject) => {
+    let arrayD = "SELECT * FROM Departments";
+    connection.query(arrayD, (error, response) => {
+      if (error) reject(error);
+      deptbelongto = response.map((department) => ({
+        name: `${department.name}`,
+      value: department.id
+      }));
+      resolve();
+    });
+  });
+}
+
 function populatedEmployees() {
 let arrayE = " select * from Employees";
 connection.query(arrayE, (error,response) => {
-  // if (error) throw error;
-  // console.log(response);
-
   arrayEmployees = response.map((employee) => ({
   name: `${employee.first_name} ${employee.last_name}`,
   value: employee.id
   
 }));
+
+
+
 
 
 console.log(`
@@ -42,6 +72,9 @@ console.log(`
   `) /* adds the ASCII art to the terminal*/
 
 const questions = () => { /* setting all questions to a function to call after each promise is complete */
+populatedRoles()
+
+.then(() => {
 inquirer
   .prompt([
 
@@ -71,9 +104,10 @@ inquirer
         when: (answers) => answers['toDo'] === 'Add Role'
       },
       {
-        type: 'input',
-        message: 'What department number does the role belong to? 1= Sales, 2= Engineering, 3=Finance, 4=Legal',
+        type: 'list',
+        message: 'What department does the role belong to?',
         name: 'belongTo',
+        choices: deptbelongto,
         when: (answers) => answers['toDo'] === 'Add Role'
       },
       {
@@ -90,9 +124,9 @@ inquirer
       },
       {
         type: 'list',
-        message: 'What is the employees Role_number? 1=Sales Lead, 2=Salesperson, 3=Lead Engineer, 4= Software Engineer, 5= Account Manager, 6= Accountant, 7=Legal Team Lead, 8=Lawyer',
+        message: 'What is the employees role?',
         name: 'currentRole',
-        choices: ['1', '2', '3','4', '5','6','7','8'],
+        choices: arrayRoles,
         when: (answers) => answers['toDo'] === 'Add Employee'
       },
       {
@@ -111,9 +145,9 @@ inquirer
       },
       {
         type: 'list',
-        message: 'What do you want their new role to be? 1=Sales Lead, 2=Salesperson, 3=Lead Engineer, 4= Software Engineer, 5= Account Manager, 6= Accountant, 7=Legal Team Lead, 8=Lawyer',
+        message: 'What do you want their new role to be?',
         name: 'newRole',
-        choices: ['1', '2', '3','4', '5','6','7','8'],
+        choices: arrayRoles,
         when: (answers) => answers['update'],
       },
 
@@ -192,12 +226,15 @@ else if (response.role && response.salary && response.belongTo) { /* if all role
   } else if (response.toDo === "quit") { /* ends the connection if quit is selected */
     connection.end();
   }
-});
-}
+}); /* ends the .thens */
+})
+} /* ends const questions */
 
 questions();
 });
-}
+
+
+} /* ends the populated Employees function */
 
 populatedEmployees();
 
