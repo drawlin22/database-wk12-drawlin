@@ -12,6 +12,24 @@ const allEmployees = ""
 const allDepartments = ""
 const allRoles = ""
 
+console.log(`
+███████╗███╗   ███╗██████╗ ██╗      ██████╗ ██╗   ██╗███████╗███████╗
+██╔════╝████╗ ████║██╔══██╗██║     ██╔═══██╗╚██╗ ██╔╝██╔════╝██╔════╝
+█████╗  ██╔████╔██║██████╔╝██║     ██║   ██║ ╚████╔╝ █████╗  █████╗  
+██╔══╝  ██║╚██╔╝██║██╔═══╝ ██║     ██║   ██║  ╚██╔╝  ██╔══╝  ██╔══╝  
+███████╗██║ ╚═╝ ██║██║     ███████╗╚██████╔╝   ██║   ███████╗███████╗
+╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝ ╚═════╝    ╚═╝   ╚══════╝╚══════╝
+                                                                     
+    ████████╗██████╗  █████╗  ██████╗██╗  ██╗███████╗██████╗         
+    ╚══██╔══╝██╔══██╗██╔══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗        
+       ██║   ██████╔╝███████║██║     █████╔╝ █████╗  ██████╔╝        
+       ██║   ██╔══██╗██╔══██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗        
+       ██║   ██║  ██║██║  ██║╚██████╗██║  ██╗███████╗██║  ██║        
+       ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝        
+                                                                
+  `)
+
+
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -89,16 +107,16 @@ inquirer
       },
       {
         type: 'list',
-        message: 'What is the employees current Role?',
+        message: 'What is the employees Role_number? 1=Sales Lead, 2=Salesperson, 3=Lead Engineer, 4= Software Engineer, 5= Account Manager, 6= Accountant, 7=Legal Team Lead, 8=Lawyer',
         name: 'currentRole',
-        choices: ['Software Engineer', 'Account Manager', 'Accountant','Legal Team Lead', 'Lawyer'],
+        choices: ['1', '2', '3','4', '5','6','7','8'],
         when: (answers) => answers['toDo'] === 'Add Employee'
       },
       {
         type: 'list',
-        message: 'Who is the employees current manager?',
+        message: 'Who is the employees manager_id? 1=null, 2=John Doe, 3=Ashley Rodriguez, 4=Kunal Singh, 5= Sarah Lourd',
         name: 'currentManager',
-        choices: ['null', 'John Doe', 'Ashley Rodriguez', 'Kunal Singh', 'Sarah Lourd'],
+        choices: ['1', '2', '3', '4', '5'],
         when: (answers) => answers['toDo'] === 'Add Employee'
       },
       {
@@ -122,7 +140,7 @@ inquirer
     const allEmployees = response.allEmployees;
     const allDepartments = response.allDepartments;
     const allRoles = response.allRoles; 
-
+    
 
 if (allEmployees === 'View All Employees') {
     const viewAllEmployees = "select * from Employees"
@@ -131,35 +149,43 @@ if (allEmployees === 'View All Employees') {
       console.table(response);
     });
   }
-if (allRoles === 'View All Roles') {
+else if (allRoles === 'View All Roles') {
   const viewAllRoles = "select * from Roles"
   connection.query(viewAllRoles, (error,response) => {
     if (error) throw error;
     console.table(response);
   });
 }
-if (allDepartments === 'View All Departments') {
+else if (allDepartments === 'View All Departments') {
   const viewAllDepartments = "select * from Departments"
   connection.query(viewAllDepartments, (error,response) => {
     if (error) throw error;
     console.table(response);
   });
 }
-if (response.addDepartment) {
+else if (response.addDepartment) {
   const userAddDepartments = `INSERT INTO Departments(name) Values ('${addDepartment}')`
   connection.query(userAddDepartments, (error,response) => {
     if (error) throw error;
     console.table(response);
   });
 }
-if (response.role && response.salary && response.belongTo) {
+else if (response.role && response.salary && response.belongTo) {
     const userAddRole = `INSERT INTO Roles(title, salary, department_id) Values ('${role}','${salary}','${belongTo}')`
     connection.query(userAddRole, (error,response) => {
       if (error) throw error;
       console.table(response);
     });
   }
-  if (response.firstName && response.lastName && response.currentRole && response.currentManager) {
+  else if (response.firstName && response.lastName && response.currentRole && response.currentManager) {
+    const addUser = `INSERT INTO Employees(first_name, last_name, role_id, manager_id) Values ('${firstName}','${lastName}','${currentRole}','${currentManager}')`
+    connection.query(addUser, (error,response) => {
+      if (error) throw error;
+
+      console.table(response);
+    });
+  }
+  else if (response.firstName && response.lastName && response.currentRole && response.currentManager) {
     const userUpdate = `update Employees(first_name, last_name, role_id, manager_id) Values ('${firstName}','${lastName}','${currentRole}','${currentManager}')`
     connection.query(userUpdate, (error,response) => {
       if (error) throw error;
@@ -168,15 +194,4 @@ if (response.role && response.salary && response.belongTo) {
   }
 });
 
-   
-/*
-
-
-
-WHEN I choose to add an employee
-THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
-WHEN I choose to update an employee role
-THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
-```
-
-*/
+  
