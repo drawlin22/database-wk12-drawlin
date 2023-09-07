@@ -1,16 +1,5 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const addDepartment = ""
-const role = ""
-const salary = ""
-const belongTo = ""
-const firstName = ""
-const lastName = ""
-const currentRole = ""
-const currentManager = ""
-const allEmployees = ""
-const allDepartments = ""
-const allRoles = ""
 
 console.log(`
 ███████╗███╗   ███╗██████╗ ██╗      ██████╗ ██╗   ██╗███████╗███████╗
@@ -27,16 +16,17 @@ console.log(`
        ██║   ██║  ██║██║  ██║╚██████╗██║  ██╗███████╗██║  ██║        
        ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝        
                                                                 
-  `)
+  `) /* adds the ASCII */
 
 
-const connection = mysql.createConnection({
+const connection = mysql.createConnection({ /* creates mysequel connection */
   host: 'localhost',
   user: 'root',
   password: 'nicholas12',
   database: 'Employee_Records',
 });
 
+const questions = () => { /* setting all questions to a function to call after each promise is complete */
 inquirer
   .prompt([
 
@@ -46,27 +36,6 @@ inquirer
         name: 'toDo',
         choices: ['Add Department', 'Add Role', 'Add Employee', 'Update Employee Role', 'View All Employees', 'View All Departments', 'View All Roles'
     ]
-      },
-      {
-        type: 'list',
-        message: 'Confirm View all Employees',
-        name: 'allEmployees',
-        choices: ['View All Employees'],
-        when: (answers) => answers['toDo'] === 'View All Employees'
-      },
-      {
-        type: 'list',
-        message: 'Confirm View all Departments',
-        name: 'allDepartments',
-        choices: ['View All Departments'],
-        when: (answers) => answers['toDo'] === 'View All Departments'
-      },
-      {
-        type: 'list',
-        message: 'Confirm View all Roles',
-        name: 'allRoles',
-        choices: ['View All Roles'],
-        when: (answers) => answers['toDo'] === 'View All Roles'
       },
       {
         type: 'input',
@@ -126,7 +95,7 @@ inquirer
         choices: ['dept1'],
         when: (answers) => answers['toDo'] === 'Update Employee Role'
       },
-  ])
+      ])
   
   .then((response) => {
     const addDepartment = response.addDepartment;
@@ -137,9 +106,9 @@ inquirer
     const lastName = response.lastName;
     const currentRole = response.currentRole;
     const currentManager = response.currentManager;
-    const allEmployees = response.allEmployees;
-    const allDepartments = response.allDepartments;
-    const allRoles = response.allRoles; 
+    const allEmployees = response.toDo;
+    const allDepartments = response.toDo;
+    const allRoles = response.toDo; 
     
 
 if (allEmployees === 'View All Employees') {
@@ -147,6 +116,7 @@ if (allEmployees === 'View All Employees') {
     connection.query(viewAllEmployees, (error,response) => {
       if (error) throw error;
       console.table(response);
+      questions();
     });
   }
 else if (allRoles === 'View All Roles') {
@@ -154,6 +124,7 @@ else if (allRoles === 'View All Roles') {
   connection.query(viewAllRoles, (error,response) => {
     if (error) throw error;
     console.table(response);
+    questions();
   });
 }
 else if (allDepartments === 'View All Departments') {
@@ -161,6 +132,7 @@ else if (allDepartments === 'View All Departments') {
   connection.query(viewAllDepartments, (error,response) => {
     if (error) throw error;
     console.table(response);
+    questions();
   });
 }
 else if (response.addDepartment) {
@@ -168,6 +140,7 @@ else if (response.addDepartment) {
   connection.query(userAddDepartments, (error,response) => {
     if (error) throw error;
     console.table(response);
+    questions();
   });
 }
 else if (response.role && response.salary && response.belongTo) {
@@ -175,14 +148,15 @@ else if (response.role && response.salary && response.belongTo) {
     connection.query(userAddRole, (error,response) => {
       if (error) throw error;
       console.table(response);
+      questions();
     });
   }
   else if (response.firstName && response.lastName && response.currentRole && response.currentManager) {
     const addUser = `INSERT INTO Employees(first_name, last_name, role_id, manager_id) Values ('${firstName}','${lastName}','${currentRole}','${currentManager}')`
     connection.query(addUser, (error,response) => {
       if (error) throw error;
-
       console.table(response);
+      questions();
     });
   }
   else if (response.firstName && response.lastName && response.currentRole && response.currentManager) {
@@ -190,8 +164,11 @@ else if (response.role && response.salary && response.belongTo) {
     connection.query(userUpdate, (error,response) => {
       if (error) throw error;
       console.table(response);
+      questions();
     });
   }
 });
+}
 
+questions();
   
