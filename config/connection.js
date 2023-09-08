@@ -1,7 +1,6 @@
 const mysql= require('mysql2')
 require('dotenv').config();
 
-
 const connection = mysql.createConnection({ /* creates mysequel connection */
   host: 'localhost',
   user: 'root',

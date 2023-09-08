@@ -8,7 +8,7 @@ Description: This project was to create a command-line appliation that helps to 
 ![Employee Tracker](<Screenshot 2023-09-07 at 7.27.57 PM.png>)
 
 
-Google drive video walkthough link: 
+Google drive video walkthough link: https://drive.google.com/file/d/1gU3y2_NQOfHvMfUDLsehzKWbYP7KZFkP/view
 
 # Usage Deployed Site: NA
 
