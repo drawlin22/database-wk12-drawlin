@@ -1,7 +1,12 @@
-const myPassword = process.env.my_password;
+const mysql= require('mysql2')
+require('dotenv').config();
 
-// {
-//     host: 'localhost',
-//     dialect: 'mysql',
-//     port: 3306
-//   }
+
+const connection = mysql.createConnection({ /* creates mysequel connection */
+  host: 'localhost',
+  user: 'root',
+  password: process.env.my_password,
+  database: 'Employee_Records',
+});
+
+module.exports = connection

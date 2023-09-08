@@ -1,16 +1,11 @@
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
+const connection = require('./config/connection.js')
 let arrayEmployees=[];
 let arrayRoles = [];
 let arrayManagers = [];
 let deptbelongto = [];
 
-const connection = mysql.createConnection({ /* creates mysequel connection */
-  host: 'localhost',
-  user: 'root',
-  password: 'nicholas12',
-  database: 'Employee_Records',
-});
 
 function populatedManagers() { /* function for identifying array of managers from Employee table */
   return new Promise((resolve, reject) => {
