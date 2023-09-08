@@ -12,7 +12,21 @@ const connection = mysql.createConnection({ /* creates mysequel connection */
   database: 'Employee_Records',
 });
 
-function populatedRoles() {
+function populatedManagers() { /* function for identifying array of managers from Employee table */
+  return new Promise((resolve, reject) => {
+    let arrayM = "SELECT * FROM Employees";
+    connection.query(arrayM, (error, response) => {
+      if (error) reject(error);
+      arrayManagers = response.map((manager) => ({
+        name: `${manager.first_name} ${manager.last_name}`,
+        value: manager.manager_id
+      }));
+      resolve();
+    });
+  });
+}
+
+function populatedRoles() { /* function for identifying array of roles from Roles table */
   return new Promise((resolve, reject) => {
   let arrayR = "SELECT * FROM Roles";
   connection.query(arrayR, (error, response) => {
@@ -24,10 +38,11 @@ function populatedRoles() {
     resolve();
   });
 })
-.then (() => populateDepartments());
+.then (() => populateDepartments())
+.then(() => populatedManagers());
 }
 
-function populateDepartments() {
+function populateDepartments() { /* function for identifying array of departments from Departments table */
   return new Promise((resolve, reject) => {
     let arrayD = "SELECT * FROM Departments";
     connection.query(arrayD, (error, response) => {
@@ -41,7 +56,7 @@ function populateDepartments() {
   });
 }
 
-function populatedEmployees() {
+function populatedEmployees() { /* function for identifying array of employees from Employee table */
 let arrayE = " select * from Employees";
 connection.query(arrayE, (error,response) => {
   arrayEmployees = response.map((employee) => ({
@@ -49,10 +64,6 @@ connection.query(arrayE, (error,response) => {
   value: employee.id
   
 }));
-
-
-
-
 
 console.log(`
 ███████╗███╗   ███╗██████╗ ██╗      ██████╗ ██╗   ██╗███████╗███████╗
@@ -77,19 +88,17 @@ populatedRoles()
 .then(() => {
 inquirer
   .prompt([
-
     {
         type: 'list',
         message: 'What would you like to do?',
         name: 'toDo',
-        choices: [ 'View All Employees', 'View All Departments', 'View All Roles','Add Department', 'Add Role', 'Add Employee', 'Update Employee Role',"quit"]
+        choices: [ 'View All Employees', 'View All Departments', 'View All Roles','Add Department', 'View Employees by Manager','View Employees by Department','Add Role', 'Add Employee', 'Update Employee Role', 'Update Employee Manager','quit']
       },
       {
         type: 'input',
         message: 'What is the name of the department to add?',
         name: 'addDepartment',
         when: (answers) => answers['toDo'] === 'Add Department'
-        
       },
       {
         type: 'input',
@@ -131,9 +140,9 @@ inquirer
       },
       {
         type: 'list',
-        message: 'Who is the employees manager_id? 1=null, 2=John Doe, 3=Ashley Rodriguez, 4=Kunal Singh, 5= Sarah Lourd',
+        message: 'Who is the employees manager_id?',
         name: 'currentManager',
-        choices: ['1', '2', '3', '4', '5'],
+        choices: arrayManagers,
         when: (answers) => answers['toDo'] === 'Add Employee'
       },
       {
@@ -150,10 +159,23 @@ inquirer
         choices: arrayRoles,
         when: (answers) => answers['update'],
       },
+      {
+        type: 'list',
+        message: 'Which Employee do you want to update?',
+        name: 'updateManager',
+        choices: arrayEmployees,
+        when: (answers) => answers['toDo'] === 'Update Employee Manager',
+      },
+      {
+        type: 'list',
+        message: 'Who do you want their new manager to be?',
+        name: 'newManager',
+        choices: arrayManagers,
+        when: (answers) => answers['updateManager'],
+      },
 
       ])
-  
-    
+
   .then((response) => {
     const addDepartment = response.addDepartment;
     const role = response.role;
@@ -166,8 +188,11 @@ inquirer
     const allEmployees = response.toDo;
     const allDepartments = response.toDo;
     const allRoles = response.toDo; 
+    const employeeId = response.updateManager;
+    const newManagerId = response.newManager;
+
+   
     
-  
 if (allEmployees === 'View All Employees') { /* displays table of all Employees */
     const viewAllEmployees = "select * from Employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id"
     connection.query(viewAllEmployees, (error,response) => {
@@ -176,6 +201,22 @@ if (allEmployees === 'View All Employees') { /* displays table of all Employees 
       questions();
     });
   }
+ else if (response.toDo === 'View Employees by Manager'){
+  const viewbyManger = "select * from Employees order by manager_id ASC"
+  connection.query(viewbyManger, (error,response) => {
+    if (error) throw error;
+    console.table(response);
+    questions();
+  })
+ }
+ else if (response.toDo === 'View Employees by Department'){
+  const viewbyDept = "select * from Employees JOIN roles ON employees.role_id = roles.id JOIN departments ON roles.department_id = departments.id order by department_id ASC"
+  connection.query(viewbyDept, (error,response) => {
+    if (error) throw error;
+    console.table(response);
+    questions();
+  })
+ }
 else if (allRoles === 'View All Roles') { /* displays table of all Roles */
   const viewAllRoles = "select * from Roles"
   connection.query(viewAllRoles, (error,response) => {
@@ -223,7 +264,18 @@ else if (response.role && response.salary && response.belongTo) { /* if all role
       console.table(response);
       questions();
     });
-  } else if (response.toDo === "quit") { /* ends the connection if quit is selected */
+  }
+  else if (response.toDo === 'Update Employee Manager') { /* updates employee role from selected employee */
+  const userManagerUpdate = `update Employees set manager_id = ${newManagerId} where id = ${employeeId}`;
+  connection.query(userManagerUpdate, (error,response) => {
+    if (error) throw error;
+    console.table(response);
+    questions();
+  });
+}
+  
+  
+  else if (response.toDo === "quit") { /* ends the connection if quit is selected */
     connection.end();
   }
 }); /* ends the .thens */
@@ -232,8 +284,6 @@ else if (response.role && response.salary && response.belongTo) { /* if all role
 
 questions();
 });
-
-
 } /* ends the populated Employees function */
 
 populatedEmployees();
